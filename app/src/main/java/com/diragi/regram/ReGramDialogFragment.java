@@ -4,15 +4,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,13 +18,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.diragi.regram.Async.GetImageAsync;
+import com.diragi.regram.Async.SaveImageAsync;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by joe on 6/26/16.
@@ -40,31 +35,7 @@ public class ReGramDialogFragment extends DialogFragment {
     private TextView title;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
-    File file = new File(Environment.getDataDirectory() + "img" + File.separator +genImgName());
-
-    Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            try {
-                file.createNewFile();
-                FileOutputStream outputStream = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream);
-                outputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-            return;
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-            return;
-        }
-    };
+    File pic = Environment.getExternalStorageDirectory();
 
     private String url;
 
@@ -99,42 +70,57 @@ public class ReGramDialogFragment extends DialogFragment {
 
     private void reGram(Boolean logo) {
         url = prefs.getString("url", "");
-        if (!logo && !url.equals("")) {
-            Log.d("regram", url);
-            new GetImageAsync(link -> saveToFile(genImgName(), url)).execute(url);
+        String imageId = url.split("/")[4];
+        String accessToken = prefs.getString("ACCESS_TOKEN", null);
+        if (!logo && imageId != null && accessToken != null) {
+            Log.d("Image id", imageId);
+            new GetImageAsync(new GetImageAsync.OnImageReceived() {
+                @Override
+                public void onImageReceived(String link) {
+                    saveToFile(link);
+                }
+            }).execute(imageId, accessToken);
         } else {
             Log.d("regram", url);
             Toast.makeText(getContext(), "Invalid share URL. Please try again", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void saveToFile(String fileName, String url) {
-        Picasso.with(getContext())
-                .load(url)
-                .into(target);
-        sendToInsta();
+    private void saveToFile(String url) {
+        Log.e("Image", url);
+        System.out.println(url);
+        new SaveImageAsync(new SaveImageAsync.OnImageSaved() {
+            @Override
+            public void onImageSaved(File image) {
+                sendToInsta(image);
+            }
+        }).execute(url, Environment.getExternalStorageDirectory().toString());
     }
 
-    private void sendToInsta() {
-        Intent instaIntent = new Intent(Intent.ACTION_SEND);
-        instaIntent.setType("image/*");
-        Uri uri = Uri.fromFile(file);
-        instaIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        instaIntent.setPackage("com.instagram.android");
-
-        MainActivity ma = new MainActivity();
-        Intent finalInstaIntent = ma.getInstaIntent(instaIntent);
-        startActivity(finalInstaIntent);
-    }
-
-    private String genImgName() {
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        Random rand = new Random();
-        int random = rand.nextInt(charSet.length());
-        String name = "";
-        for (int i = 0; i < 10; i++) {
-            name += charSet.charAt(i);
+    private void sendToInsta(File file) {
+        Intent intent = getActivity().getPackageManager().getLaunchIntentForPackage("com.instagram.android");
+        if (intent != null) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setPackage("com.instagram.android");
+            try {
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+            shareIntent.setType("image/jpeg");
+            startActivity(shareIntent);
+        } else {
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.parse("market://details?id="
+                    + "com.instagram.android"));
+            startActivity(intent);
         }
-        return name;
+        deleteImageFromStorage(file);
+    }
+
+    private void deleteImageFromStorage(File fileToDelete) {
+        //TODO: Delete image from storage
     }
 }

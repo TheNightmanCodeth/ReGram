@@ -5,18 +5,12 @@ android {
     buildToolsVersion "24.0.0"
     defaultConfig {
         applicationId "com.diragi.regram"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        jackOptions {
-            enabled true
-        }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+
     }
     buildTypes {
         release {
@@ -32,12 +26,21 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha3'
-    testCompile 'junit:junit:4.12'
     //jsoup for parsing share link and grabbing image
-    compile 'org.jsoup:jsoup:1.9.2'
+    
 
     //Picasso for grabbing the image to regram
+    
+    //Retrofit for grabbing the image from insta api
+    
+    //Chrome custom tabs
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'org.jsoup:jsoup:1.9.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    compile 'com.android.support:customtabs:24.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha1'
+    compile 'javax.annotation:jsr250-api:1.0'
+    testCompile 'junit:junit:4.12'
 }
