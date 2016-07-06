@@ -1,71 +1,74 @@
-package com.diragi.regram;
+package com.diragi.regram.Activities;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.diragi.regram.Async.GetImageAsync;
 import com.diragi.regram.Async.SaveImageAsync;
+import com.diragi.regram.R;
 
 import java.io.File;
-import java.util.List;
 
 /**
- * Created by joe on 6/26/16.
+ * Created by joe on 7/1/16.
  */
 
-public class ReGramDialogFragment extends DialogFragment {
-    //Declare views
-    private Button reGram;
-    private Button withLogo;
-    private TextView title;
+public class DialogActivity extends AppCompatActivity {
+
+    private String url;
+
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     File pic = Environment.getExternalStorageDirectory();
 
-    private String url;
-
-    public ReGramDialogFragment() {
-        //Empty constructor required by super
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = prefs.edit();
+        showDialog();
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        editor = prefs.edit();
+    private void showDialog() {
 
-        View view = inflater.inflate(R.layout.regram_dialog_fragment, container);
-        reGram = (Button) view.findViewById(R.id.reGram);
-        reGram.setOnClickListener(new View.OnClickListener() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.regram_dialog, null);
+
+        Button noLogo = (Button)dialogView.findViewById(R.id.reGram);
+        Button logo = (Button)dialogView.findViewById(R.id.reGram_logo);
+
+        noLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 reGram(false);
             }
         });
-        withLogo = (Button) view.findViewById(R.id.reGram_logo);
-        withLogo.setOnClickListener(new View.OnClickListener() {
+
+        logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 reGram(true);
             }
         });
-        title = (TextView) view.findViewById(R.id.title);
-        return view;
+
+        alertDialog.setView(dialogView);
+
+        alertDialog.show();
     }
 
     private void reGram(Boolean logo) {
@@ -82,7 +85,7 @@ public class ReGramDialogFragment extends DialogFragment {
             }).execute(imageId, accessToken);
         } else {
             Log.d("regram", url);
-            Toast.makeText(getContext(), "Invalid share URL. Please try again", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Invalid share URL. Please try again", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -98,7 +101,7 @@ public class ReGramDialogFragment extends DialogFragment {
     }
 
     private void sendToInsta(File file) {
-        Intent intent = getActivity().getPackageManager().getLaunchIntentForPackage("com.instagram.android");
+        Intent intent = getPackageManager().getLaunchIntentForPackage("com.instagram.android");
         if (intent != null) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);

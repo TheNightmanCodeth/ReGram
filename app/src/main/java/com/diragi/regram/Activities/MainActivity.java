@@ -1,6 +1,8 @@
 package com.diragi.regram.Activities;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
@@ -13,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,7 +23,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.diragi.regram.DialogActivity;
 import com.diragi.regram.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +47,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = prefs.edit();
+
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext());
+        notification.setContentTitle("RePost");
+        notification.setContentText("Copy a posts share URL to RePost it!");
+        notification.setOngoing(true);
+
+        Notification notificationCompat = notification.build();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(01, notificationCompat);
+
         ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
 
         final CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();

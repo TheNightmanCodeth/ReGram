@@ -21,8 +21,11 @@
 
         </activity>
         <activity
-            android:name=".DialogActivity"
-            android:theme="@style/Theme.AppCompat.Translucent"></activity>
+            android:name=".Activities.DialogActivity"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Dialog"></activity>
         <activity android:name="com.diragi.regram.Activities.RedirectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
