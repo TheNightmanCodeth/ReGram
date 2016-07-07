@@ -20,6 +20,9 @@ import android.widget.Toast;
 import com.diragi.regram.Async.GetImageAsync;
 import com.diragi.regram.Async.SaveImageAsync;
 import com.diragi.regram.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import java.io.File;
 
@@ -40,6 +43,9 @@ public class DialogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = prefs.edit();
+
+        MobileAds.initialize(getApplicationContext(), getString(R.string.banner_ad_test_id));
+
         showDialog();
     }
 
@@ -65,6 +71,10 @@ public class DialogActivity extends AppCompatActivity {
                 reGram(true);
             }
         });
+
+        AdView dialogBanner = (AdView)dialogView.findViewById(R.id.dialog_banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        dialogBanner.loadAd(adRequest);
 
         alertDialog.setView(dialogView);
 
@@ -125,5 +135,6 @@ public class DialogActivity extends AppCompatActivity {
 
     private void deleteImageFromStorage(File fileToDelete) {
         //TODO: Delete image from storage
+        //fileToDelete.delete();
     }
 }

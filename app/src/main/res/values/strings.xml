@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">RePost</string>
     <string name="dialog_frag_title">ReGram</string>
+    <string name="banner_ad_test_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

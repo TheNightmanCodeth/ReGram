@@ -35,6 +35,7 @@
                     android:scheme="regram"/>
             </intent-filter>
         </activity>
+        <service android:name=".ClipboardService" />
     </application>
 
 </manifest>

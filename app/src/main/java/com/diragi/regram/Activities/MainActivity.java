@@ -23,42 +23,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.diragi.regram.Adapters.ListAdapter;
+import com.diragi.regram.ClipboardService;
 import com.diragi.regram.R;
+import com.google.android.gms.ads.MobileAds;
 
 public class MainActivity extends AppCompatActivity {
 
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
+
     final Activity thisActivity = this;
     Context context = MainActivity.this;
 
     private final int EXT_STORAGE_REQ = 1;
 
-    private ClipboardManager.OnPrimaryClipChangedListener listener = new ClipboardManager.OnPrimaryClipChangedListener() {
-        @Override
-        public void onPrimaryClipChanged() {
-            checkClipboardContents();
-        }
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        editor = prefs.edit();
 
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext());
-        notification.setContentTitle("RePost");
-        notification.setContentText("Copy a posts share URL to RePost it!");
-        notification.setOngoing(true);
-
-        Notification notificationCompat = notification.build();
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(01, notificationCompat);
-
-        ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).addPrimaryClipChangedListener(listener);
+        MobileAds.initialize(getApplicationContext(), getString(R.string.banner_ad_test_id));
 
         final CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
         //Login
@@ -82,25 +67,6 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(thisActivity, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(thisActivity, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(thisActivity, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXT_STORAGE_REQ);
-        }
-    }
-
-    private void checkClipboardContents() {
-        ClipboardManager cb = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-        String contents = "uey7dhk9fig93hekif";
-        if (cb.hasPrimaryClip()) {
-            ClipData cd = cb.getPrimaryClip();
-            if (cd.getDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-                contents = cd.getItemAt(0).getText().toString();
-                if (contents.contains("https://www.instagram.com/p/")) {
-                    startActivity(new Intent(MainActivity.this, DialogActivity.class));
-                    editor.putString("url", contents);
-                    editor.commit();
-                } else if (contents.equals("uey7dhk9fig93hekif")) {
-                    //Oh shit
-                    Toast.makeText(getApplicationContext(), "There was a problem. Please re-copy the share url", Toast.LENGTH_LONG).show();
-                }
-            }
         }
     }
 
